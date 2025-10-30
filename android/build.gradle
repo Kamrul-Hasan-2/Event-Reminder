@@ -1,57 +1,36 @@
-plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id "dev.flutter.flutter-gradle-plugin"
-    id("com.google.gms.google-services")
-}
-
-android {
-    namespace = "com.example.event_manager"
-//    compileSdk = flutter.compileSdkVersion
-    compileSdk = 34
-    ndkVersion = flutter.ndkVersion
-
-    compileOptions {
-        coreLibraryDesugaringEnabled true // --
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+buildscript {
+    ext.kotlin_version = '2.1.0'
+    repositories {
+        google()      // Ensure Google repository is available
+        mavenCentral() // Add Maven Central repository if needed
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
-    }
-
-    defaultConfig {
-        multiDexEnabled true // --
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.event_manager"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 24
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutter.versionCode
-        versionName = flutter.versionName
-    }
-
-    buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
-        }
+    dependencies {
+        classpath "com.android.tools.build:gradle:8.2.0" // Update AGP version if needed
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
-flutter {
-    source = "../.."
+allprojects {
+    repositories {
+        google()      // Ensure Google repository is available for all projects
+        mavenCentral() // Add Maven Central repository for all projects
+    }
 }
 
-dependencies {
-    // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+rootProject.buildDir = "../build"  // Set the root build directory
 
-    // Add other Firebase dependencies (example: Analytics)
-    implementation("com.google.firebase:firebase-analytics")
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+subprojects {
+    // Customize build directory for each subproject
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+
+subprojects {
+    // Ensure subprojects depend on the app project
+    project.evaluationDependsOn(":app")
+}
+
+// Clean task definition
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir // Clean the root project build directory
 }
